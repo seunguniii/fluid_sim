@@ -1,0 +1,27 @@
+TODO
+---
+- Needs optimization
+  - clean recursive loops
+  - faster painting method
+  - clean code altogether
+- UI.pde
+  - simulate nozzle and finned circle with UI
+  - add menu for color grading
+  - variable graph plots
+- boundary conditions
+    - outlet
+      - cavities form at outlet corners
+      - set condition to 'open'
+    - inlet
+    - walls
+- periodic boundaries
+  - revise so it works
+- add streamlines
+- cleaner countours
+- accurate variable names
+  - rho is used for pressure, might cause confusion
+---
+Hard stuffs
+---
+- somehow implement compressive flow
+- D3Q27
