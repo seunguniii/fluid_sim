@@ -16,9 +16,9 @@ class Legend {
     rect(10, 0.5*h - 128 + h*x, 22, 258);
     for (int i = 0; i < 256; i++) {
       //shade.grayInvert(i);
-      //shade.universal(i);
+      shade.universal(i);
       //shade.redBlue(i);
-      shade.gray(shade.callibrate(i));
+      //shade.gray(shade.callibrate(i));
       rect(11, 0.5*h + 128 - i + h*x, 20, 1);
     }
   }
@@ -36,9 +36,9 @@ class Legend {
     rect(10, 0.5*h - 128 + h*x, 22, 258);
     for (int i = 0; i < 256; i++) {
       //shade.grayInvert(i);
-      //shade.universal(i);
+      shade.universal(i);
       //shade.redBlue(i);
-      shade.gray(shade.callibrate(i));
+      //shade.gray(shade.callibrate(i));
       rect(11, 0.5*h + 128 - i + h*x, 20, 1);
     }
   }
