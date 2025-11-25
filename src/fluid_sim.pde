@@ -49,8 +49,7 @@ void draw()
   if(simulate){
     ui.leftColumn1();
     if(lpfCheck == lpf){
-      if(rhoLocate < 2) paint.rho(rhoLocate);
-      if(uLocate < 2)   paint.u(uLocate);
+      if(rhoLocate < 2 && uLocate < 2) paint.canvas(rhoLocate, uLocate);
     
       if(loop > row){
         textSize(0.05*h);
