@@ -1,4 +1,4 @@
-class Update {
+class SimulationSolver {
   void collision() {
     double v = 1d - omega;
     for (int i = 0; i < row; i++) {
@@ -108,3 +108,4 @@ class Update {
     for(int j = 0; j < 9; j++){oldN[row - 2][k][j] = neq(j, u[row - 2][k], rho[row - 2][k]);}
   }
 }
+
