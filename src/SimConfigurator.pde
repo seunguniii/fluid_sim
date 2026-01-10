@@ -1,4 +1,4 @@
-class Set {
+class SimulationConfigurator {
   void e_i() {
     e[0] = new Vector(0d, 0d);
     e[1] = new Vector(1d, 0d);
@@ -104,3 +104,4 @@ class Set {
     rho[50*column/100][column/2] = 1.5d;
   }
 }
+
