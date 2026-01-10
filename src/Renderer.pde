@@ -1,4 +1,4 @@
-class Paint {
+class Renderer {
   Legend legend = new Legend();
   int rho_shadeVar = 0;
   int u_shadeVar = 0;
@@ -145,3 +145,4 @@ class Paint {
     }
   }
 }
+
