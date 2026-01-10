@@ -1,25 +1,47 @@
+///////////////////////////////////////
+//      RENDER COORDINATE FRAME      //
+//                                   //
+//  +----------------------------> x //
+//  |                            |   //
+//  |                            |   //
+//  |           SCREEN           |   //
+//  |                            |   //
+//  |                            |   //
+//  V----------------------------+   //
+//  y                                //
+//                                   //
+///////////////////////////////////////
+
 class Renderer {
+  private final Simulation simulation;
+  private final Find find;
+  
+  Renderer(Simulation simulation, Find find) {
+    this.simulation = simulation;
+    this.find = find;
+  }
+  
   Legend legend = new Legend();
   int rho_shadeVar = 0;
   int u_shadeVar = 0;
   float iSize;
   
-  double rho_max;  double rho_min;
-  double rho_gap;  double rho_gap02;  double rho_gap001;
+  float rho_max;  float rho_min;
+  float rho_gap;  float rho_gap02;  float rho_gap001;
   
-  double u_max;  double u_min;
-  double u_gap;  double u_gap02;  double u_gap001;
+  float u_max;  float u_min;
+  float u_gap;  float u_gap02;  float u_gap001;
   
-  double liftTemp;  double dragTemp;
+  float liftTemp;  float dragTemp;
+  
+  float meanU;
   
   void canvas(int x, int y) { //xfor rho location y, y for u location
-    Find find = new Find();
     rho_max = find.max(0);
     rho_min = find.min(0);
     u_max = find.max(1);
     u_min = find.min(1);
     
-    ui.crashDetect(u_max);
     meanU = (u_max + u_min)*0.5;
     
     rho_gap = rho_max - rho_min;
@@ -38,31 +60,31 @@ class Renderer {
     rect(0, xh, h*3, h);
     rect(0, yh, h*3, h);
     
-    for (int i = 0; i < row; i++) {
+    for (int i = 0; i < simulation.row; i++) {
       iSize = i*size;
-      for (int j = 0; j < column; j++) {
-        if (boundary[i][j] || object[i][j]){
+      for (int j = 0; j < simulation.column; j++) {
+        if (simulation.notFluid(i, j)){
           shade.gray(255);
           square(iSize, xh + j*size, size);
           square(iSize, yh + j*size, size);
-        }else {
+        } else {
           if (rho_max == rho_min) rho_shadeVar = 128;
-          else rho_shadeVar = (int)((rho[i][j] - rho_min)/rho_gap*255d);
+          else rho_shadeVar = (int)((simulation.rho[i][j] - rho_min)/rho_gap*255f);
           shade.universal(shade.callibrate(rho_shadeVar));
-          if(contour[x]){if((shade.callibrate(rho_shadeVar) - rho_min) % rho_gap02 <= rho_gap001 && !objectNeighbor[i][j]){shade.gray(255);}}
+          if(contour[x]){if((shade.callibrate(rho_shadeVar) - rho_min) % rho_gap02 <= rho_gap001 && !simulation.obstacleNeighbor[i][j]){shade.gray(255);}}
           square(iSize, xh + j*size, size);
 
           if (u_max == u_min) u_shadeVar = 128;
-          else u_shadeVar = (int)((u[i][j].vectorSize() - u_min)/u_gap*255d);
+          else u_shadeVar = (int)((simulation.u[i][j].mag() - u_min)/u_gap*255f);
           shade.universal(shade.callibrate(u_shadeVar));
-          if(contour[y]){if((shade.callibrate(u_shadeVar) - u_min) % u_gap02 <= u_gap001 && !objectNeighbor[i][j]){shade.gray(255);}}
+          if(contour[y]){if((shade.callibrate(u_shadeVar) - u_min) % u_gap02 <= u_gap001 && !simulation.obstacleNeighbor[i][j]){shade.gray(255);}}
           square(iSize, yh + j*size, size);
           
-          if(j > 2 && object[i][j - 2]) liftTemp += rho[i][j];
-          else if(j < column - 2 && object[i][j + 2]) liftTemp -= rho[i][j];
+          if(j > 2 && simulation.obstacle[i][j - 2]) liftTemp += simulation.rho[i][j];
+          else if(j < simulation.column - 2 && simulation.obstacle[i][j + 2]) liftTemp -= simulation.rho[i][j];
           
-          if(i > 2 && object[i - 2][j]) dragTemp -= rho[i][j];
-          else if(i < row - 2 && object[i + 2][j]) dragTemp += rho[i][j];
+          if(i > 2 && simulation.obstacle[i - 2][j]) dragTemp -= simulation.rho[i][j];
+          else if(i < simulation.row - 2 && simulation.obstacle[i + 2][j]) dragTemp += simulation.rho[i][j];
         }
       }
     }
@@ -73,19 +95,22 @@ class Renderer {
     
     lift = liftTemp;
     drag = dragTemp;
+    
+    //if(ui.crashDetect(u_max)) simulate = false;
   }
   
   void vectorField(int z) {
-    Find find = new Find();
+    Find find = new Find(simulation);
     float zh = z*h;
-    int step = column/25;
+    int step = simulation.column/25;
     float line = 50/(float)(find.max(1) - find.min(1));
     shade.gray(255);
     //shade.green(128);
-    for(int i = 1; i < column - 3; i += step){
+    for(int i = 1; i < simulation.column - 3; i += step){
       iSize = i*size;
-      for(int j = 1; j < row - 6; j += step){
-        line(j*size, zh + iSize, j*size + line*(float)(u[j][i].x + u[j + 1][i].x + u[j][i + 1].x + u[j + 1][i + 1].x)/4, zh + iSize + line*(float)(u[j][i].y + u[j + 1][i].y + u[j][i + 1].y + u[j + 1][i + 1].y)/4);
+      for(int j = 1; j < simulation.row - 6; j += step){
+        line(j*size, zh + iSize, j*size + line*(simulation.u[j][i].x + simulation.u[j + 1][i].x + simulation.u[j][i + 1].x + simulation.u[j + 1][i + 1].x)/4, 
+                                 zh + iSize + line*(simulation.u[j][i].y + simulation.u[j + 1][i].y + simulation.u[j][i + 1].y + simulation.u[j + 1][i + 1].y)/4);
       }
     }
   }
@@ -132,17 +157,15 @@ class Renderer {
                       text("" + nf((float)dragMin, 0, 4), h3 + 0.02*h, 1.95*h);
   }
   
-  void object(int z){
+  void obstacle(int z){
     float zh = z*h;
-    for(int i = 0; i < row; i++){
+    for(int i = 0; i < simulation.row; i++){
       iSize = i*size;
-      for(int j = 0; j < column; j++){
-        if(boundary[i][j] || object[i][j]){
-          shade.gray(255);
-          square(iSize, zh + j*size, size);
-        }
+      for(int j = 0; j < simulation.column; j++){
+        if(simulation.notFluid(i, j)) shade.gray(255);
+        else shade.gray(0);
+        square(iSize, zh + j*size, size);
       }
     }
   }
 }
-
