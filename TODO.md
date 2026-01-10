@@ -4,7 +4,7 @@ TODO
   - clean recursive loops
   - faster painting method
   - clean code altogether
-- UI.pde
+- UIController.pde
   - simulate nozzle and finned circle with UI
   - add menu for color grading
   - variable graph plots
@@ -25,3 +25,21 @@ Hard stuffs
 ---
 - somehow implement compressive flow
 - D3Q27
+---
+Updates
+---
+- Jan 2026
+  - Refactored code to be more object oriented and have less static variables/methods
+  - Added Simulation, Obstacle, UIState class
+  - Renamed Paint class to Renderer
+  - Renamed Update class to SimulationSolver
+  - Renamed UI class to UIController
+  - Renamed Object class to ObstacleBuilder
+  - Updated outlet condition, applied to three boundaries
+  - Updated wind tunnel condition, applied only to inlet
+  - Deleted Vector class, used PVector
+  - Need to finish implementing all UI functions
+    - choose countour, vector field rendering
+    - add airfoil for simulation obstacle
+    - add periodic flow
+    - add iterations per frame
