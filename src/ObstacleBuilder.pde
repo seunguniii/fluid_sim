@@ -1,17 +1,49 @@
-static class Object{
-  static boolean boundary(int i, int j) {
-    return (i == 0 || j == 0 || i == row - 1 || j == column - 1);
+class ObstacleBuilder{
+  private final Simulation simulation;
+  private final Obstacle obstacle;
+  
+  ObstacleBuilder(Simulation simulation, Obstacle obstacle) {
+    this.simulation = simulation;
+    this.obstacle = obstacle;
   }
 
-  static boolean NACA4(double x, double theta, int a, int b) {
+  void build(){
+    for(int i = 0; i < simulation.row; i++){
+      for(int j = 0; j < simulation.column; j++){
+        obstacle(i, j);
+      }
+    }
+    println("Done initializing obstacle");
+  }
+
+  boolean obstacle(int i, int j){
+    switch(obstacle.type){
+      case "pipe":          return pipe(i, j);
+      case "airfoil":       return NACA4(airFoil, -angleAttack, i, j);
+      case "walls":         return walls(i, j);
+      case "box":           return box(i, j);
+      //case" circles":       return circles(i, j);
+      case "circle":        return circle(i, j, obstacle.circleRadius);
+      //case" nozzle":        return nozzle(i, j);
+      case "wall":          return wall(i, j);
+      case "finned circle": return finnedCircle(i, j, obstacle.circleRadius);
+      default: return false;
+    }
+  }
+  
+  boolean obstacleNeighbor(int i, int j){
+    return (obstacle(i - 1, j) || obstacle(i + 1, j) || obstacle(i, j - 1) || obstacle(i, j + 1) || obstacle(i - 1, j - 1) || obstacle(i - 1, j + 1) || obstacle(i + 1, j - 1) || obstacle(i + 1, j + 1));
+  }
+
+  boolean NACA4(double x, double theta, int a, int b) {
     double i, j;
     double m = (int)(x/1000d)/100d;
     double p = (x%1000 - x%100)/1000d;
     double t = x%100d/100d;
-    double callibrate = (locateX*(Math.tan(Math.toRadians(-angleAttack) + Math.atan(column/2/locateX)) - column/2/locateX))/column*100;
+    double callibrate = (locateX*(Math.tan(Math.toRadians(-angleAttack) + Math.atan(simulation.column/2/locateX)) - simulation.column/2/locateX))/simulation.column*100;
     boolean temp;
-    i = (a*Math.cos(Math.toRadians(theta)) - b*Math.sin(Math.toRadians(theta)))/column*100;
-    j = (b*Math.cos(Math.toRadians(theta)) + a*Math.sin(Math.toRadians(theta)))/column*100;
+    i = (a*Math.cos(Math.toRadians(theta)) - b*Math.sin(Math.toRadians(theta)))/simulation.column*100;
+    j = (b*Math.cos(Math.toRadians(theta)) + a*Math.sin(Math.toRadians(theta)))/simulation.column*100;
     
     if(m == 0 || p == 0)
       temp = (i > locateX && i < locateX + airfoilSize
@@ -29,76 +61,57 @@ static class Object{
     return temp;
   }
 
-  static boolean pipe(int i, int j){
-    return ((i < 65*column/100 && (j == 54*column/100 || j == 46*column/100)) || ((i > 67*column/100 && i < 75*column/100) && (j == 54*column/100 || j == 46*column/100)) || (i == 49*column/100 && j > 46*column/100 && j < 54*column/100));
+  boolean pipe(int i, int j){
+    return ((i < 65*simulation.column/100 && (j == 54*simulation.column/100 || j == 46*simulation.column/100))
+            || ((i > 67*simulation.column/100 && i < 75*simulation.column/100) && (j == 54*simulation.column/100 || j == 46*simulation.column/100))
+            || (i == 49*simulation.column/100 && j > 46*simulation.column/100 && j < 54*simulation.column/100));
   }
   
-  static boolean walls(int i, int j){
-    return((i == 35*column/100 && j > 70*column/100) 
-        || (i == 85*column/100 && j < 50*column/100)
-        || (j == 60*column/100 && i > 240*column/100)
-        || (i == 150*column/100 && j > 20*column/100 && j < 60*column/100)
-        || (j == 80*column/100 && i > 100*column/100 && i < 170*column/100)
-        || (i == 200*column/100 && j > 10*column/100 && j < 40*column/100));
+  boolean walls(int i, int j){
+    return((i == 35*simulation.column/100 && j > 70*simulation.column/100) 
+        || (i == 85*simulation.column/100 && j < 50*simulation.column/100)
+        || (j == 60*simulation.column/100 && i > 240*simulation.column/100)
+        || (i == 150*simulation.column/100 && j > 20*simulation.column/100 && j < 60*simulation.column/100)
+        || (j == 80*simulation.column/100 && i > 100*simulation.column/100 && i < 170*simulation.column/100)
+        || (i == 200*simulation.column/100 && j > 10*simulation.column/100 && j < 40*simulation.column/100));
   }
 
-  static boolean box(int i, int j){
-    return(i == 49*column/100 || j == 9*column/100 || j == 91*column/100 || i == 131*column/100);
+  boolean box(int i, int j){
+    return(i == 49*simulation.column/100 || j == 9*simulation.column/100 || j == 91*simulation.column/100 || i == 131*simulation.column/100);
   }
 
-  static boolean circles(int i, int j){
-    return((i - 50*column/100)*(i - 50*column/100) + (j - 10*column/100)*(j - 10*column/100) < 25*column/100*column/100
-       || (i - 85*column/100)*(i - 85*column/100) + (j - 40*column/100)*(j - 40*column/100) < 25*column/100*column/100
-       || (i - 40*column/100)*(i - 40*column/100) + (j - 50*column/100)*(j - 50*column/100) < 25*column/100*column/100
-       || (i - 100*column/100)*(i - 100*column/100) + (j - 10*column/100)*(j - 10*column/100) < 25*column/100*column/100
-       || (i - 110*column/100)*(i - 110*column/100) + (j - 55*column/100)*(j - 55*column/100) < 25*column/100*column/100
-       || (i - 100*column/100)*(i - 100*column/100) + (j - 90*column/100)*(j - 90*column/100) < 25*column/100*column/100
-       || (i - 125*column/100)*(i - 125*column/100) + (j - 30*column/100)*(j - 30*column/100) < 25*column/100*column/100
-       || (i - 150*column/100)*(i - 150*column/100) + (j - 10*column/100)*(j - 10*column/100) < 25*column/100*column/100
-       || (i - 175*column/100)*(i - 175*column/100) + (j - 70*column/100)*(j - 70*column/100) < 25*column/100*column/100);
+  boolean circles(int i, int j){
+    return((i - 50*simulation.column/100)*(i - 50*simulation.column/100) + (j - 10*simulation.column/100)*(j - 10*simulation.column/100) < 25*simulation.column/100*simulation.column/100
+       || (i - 85*simulation.column/100)*(i - 85*simulation.column/100) + (j - 40*simulation.column/100)*(j - 40*simulation.column/100) < 25*simulation.column/100*simulation.column/100
+       || (i - 40*simulation.column/100)*(i - 40*simulation.column/100) + (j - 50*simulation.column/100)*(j - 50*simulation.column/100) < 25*simulation.column/100*simulation.column/100
+       || (i - 100*simulation.column/100)*(i - 100*simulation.column/100) + (j - 10*simulation.column/100)*(j - 10*simulation.column/100) < 25*simulation.column/100*simulation.column/100
+       || (i - 110*simulation.column/100)*(i - 110*simulation.column/100) + (j - 55*simulation.column/100)*(j - 55*simulation.column/100) < 25*simulation.column/100*simulation.column/100
+       || (i - 100*simulation.column/100)*(i - 100*simulation.column/100) + (j - 90*simulation.column/100)*(j - 90*simulation.column/100) < 25*simulation.column/100*simulation.column/100
+       || (i - 125*simulation.column/100)*(i - 125*simulation.column/100) + (j - 30*simulation.column/100)*(j - 30*simulation.column/100) < 25*simulation.column/100*simulation.column/100
+       || (i - 150*simulation.column/100)*(i - 150*simulation.column/100) + (j - 10*simulation.column/100)*(j - 10*simulation.column/100) < 25*simulation.column/100*simulation.column/100
+       || (i - 175*simulation.column/100)*(i - 175*simulation.column/100) + (j - 70*simulation.column/100)*(j - 70*simulation.column/100) < 25*simulation.column/100*simulation.column/100);
   }
 
-  static boolean nozzle(int i, int j){
-    return (i < 65*column/100 && (j == 54*column/100 || j == 46*column/100))
-        || (i == 49*column/100 && j > 46*column/100 && j < 54*column/100)
-        || ((i > 64*column/100 && i < 76*column/100) && (Math.abs(j-54*column/100 - 5*column/100*Math.sin(Math.PI*(i - 65*column/100)/20*100/column)) <= 1
-                                                      || Math.abs(j-46*column/100 + 5*column/100*Math.sin(Math.PI*(i - 65*column/100)/20*100/column)) <= 1))
-        || (i > 75*column/100 && i < 85*column/100 && (j == 58*column/100 || j == 42*column/100));
+  
+/*
+  boolean nozzle(int i, int j){
+    return (i < 65*simulation.column/100 && (j == 54*simulation.column/100 || j == 46*simulation.column/100))
+        || (i == 49*simulation.column/100 && j > 46*simulation.column/100 && j < 54*simulation.column/100)
+        || ((i > 64*simulation.column/100 && i < 76*simulation.column/100) && (Math.abs(j-54*simulation.column/100 - 5*simulation.column/100*Math.sin(Math.PI*(i - 65*simulation.column/100)/20*100/column)) <= 1
+                                                      || Math.abs(j-46*simulation.column/100 + 5*simulation.column/100*Math.sin(Math.PI*(i - 65*simulation.column/100)/20*100/column)) <= 1))
+        || (i > 75*simulation.column/100 && i < 85*simulation.column/100 && (j == 58*simulation.column/100 || j == 42*simulation.column/100));
+  }
+*/
+  boolean circle(int i, int j, double r){
+    return (i - r*simulation.column/100 - 25*simulation.column/100)*(i - r*simulation.column/100 - 25*simulation.column/100) + (j - 50*simulation.column/100)*(j - 50*simulation.column/100) < r*r*simulation.column*simulation.column/100/100;
   }
 
-  static boolean circle(int i, int j, double r){
-    return (i - r*column/100 - 25*column/100)*(i - r*column/100 - 25*column/100) + (j - 50*column/100)*(j - 50*column/100) < r*r*column*column/100/100;
-  }
-
-  static boolean wall(int i, int j){
-    return (i == 25*column/100 && j > 35*column/100 && j < 75*column/100);
+  boolean wall(int i, int j){
+    return (i == 35*simulation.column/100 && j > 30*simulation.column/100 && j < 70*simulation.column/100);
   }
   
-  static boolean finnedCircle(int i, int j, int r){
-    return ((i - r*column/100 - 25*column/100)*(i - r*column/100 - 25*column/100) + (j - r*column/100 - 25*column/100)*(j - r*column/100 - 25*column/100) < r*r*column*column/100/100)
-         || (i > (25 + r)*column/100 && i < (25 + 5*r)*column/100 && j == 25*column/100 + r*column/100);
-  }
-
-  static boolean object(int i, int j){
-    switch(mode){
-      case " pipe":          return pipe(i, j);
-      case " airfoil":       return NACA4(airFoil, -angleAttack, i, j);
-      case " walls":         return walls(i, j);
-      case " box":           return box(i, j);
-      case " circles":       return circles(i, j);
-      case " circle":        return circle(i, j, circleRadius);
-      case " nozzle":        return nozzle(i, j);
-      case " wall":          return wall(i, j);
-      case " finned circle": return finnedCircle(i, j, circleRadius);
-      default: return false;
-    }
-  }
-
-  static boolean objectNeighbor(int i, int j){
-    return (object(i - 1, j) || object(i + 1, j) || object(i, j - 1) || object(i, j + 1) || object(i - 1, j - 1) || object(i - 1, j + 1) || object(i + 1, j - 1) || object(i + 1, j + 1));
-  }
-
-  static boolean boundaryNeighbor(int i, int j){
-    return (boundary(i - 1, j) || boundary(i + 1, j) || boundary(i, j - 1) || boundary(i, j + 1));
+  boolean finnedCircle(int i, int j, int r){
+    return ((i - r*simulation.column/100 - 25*simulation.column/100)*(i - r*simulation.column/100 - 25*simulation.column/100) + (j - r*simulation.column/100 - 25*simulation.column/100)*(j - r*simulation.column/100 - 25*simulation.column/100) < r*r*simulation.column*simulation.column/100/100)
+            || (i > (25 + r)*simulation.column/100 && i < (25 + 5*r)*simulation.column/100 && j == 25*simulation.column/100 + r*simulation.column/100);
   }
 }
