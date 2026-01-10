@@ -8,7 +8,7 @@ class Legend {
 
     text("Pressure", 10, 0.0625*h + h*x);
 
-    textSize(15*h/400);
+    //textSize(15*h/400);
     text(nf((float)max, 0, 6), 31, 0.5*h - 113 + h*x);
     text(nf((float)min, 0, 6), 31, 0.5*h + 127 + h*x);
     text(nf((float)((max+min)*0.5), 0, 6), 31, 0.5*h + 7 + h*x);
@@ -25,10 +25,10 @@ class Legend {
 
   void u(int x, double max, double min) {
     shade.gray(255);
-    textSize(0.05*h);
+    //textSize(0.05*h);
     text("Flow Speed", 10, 0.0625*h + h*x);
 
-    textSize(15*h/400);
+    //textSize(15*h/400);
     text(nf((float)max, 0, 6), 31, 0.5*h - 113 + h*x);
     text(nf((float)min, 0, 6), 31, 0.5*h + 127 + h*x);
     text(nf((float)((max+min)*0.5), 0, 6), 31, 0.5*h + 7 + h*x);
