@@ -1,4 +1,4 @@
-class UI{
+class UIController {
   void leftColumn1(){
     fill(255);       text("Loop", h3 + 0.02*h, 0.0625*h);
                      text("Reynolds", h3 + 0.02*h, 0.2125*h);
@@ -624,3 +624,4 @@ class UI{
     setVF = false;                vect = " ";
   }
 }
+
