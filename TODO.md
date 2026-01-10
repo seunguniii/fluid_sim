@@ -11,8 +11,6 @@ TODO
 - boundary conditions
     - outlet
       - cavities form at outlet corners
-      - set condition to 'open'
-    - inlet
     - walls
 - periodic boundaries
   - revise so it works
